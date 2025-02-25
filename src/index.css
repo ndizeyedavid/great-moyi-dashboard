@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#links:not(.active) {
+  @apply hover:bg-gray-800 hover:text-white;
+}
+.active {
+  @apply text-white bg-red-600;
+}
+
+/* nprogress */
+#nprogress .bar {
+  background: linear-gradient(to right, red, #b91c1c) !important;
+  height: 4px !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1031;
+  box-shadow: 0 0 10px red, 0 0 5px #b91c1c;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px red, 0 0 5px #b91c1c !important;
+}
+
+#spin {
+  animation: spinning 1s linear infinite;
+}
+
+@keyframes spinning {
+  0% {
+    rotate: 0deg;
+  }
+  100% {
+    rotate: 360deg;
+  }
+}
+
+#spinner {
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    rotate: 0deg;
+  }
+  100% {
+    rotate: 360deg;
+  }
+}

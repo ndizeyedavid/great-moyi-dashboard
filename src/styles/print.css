@@ -1,0 +1,15 @@
+@media print {
+  .no-print,
+  .hide-on-print {
+    display: none !important;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: none !important;
+  }
+  .print-reduce {
+    @apply p-2;
+  }
+}
