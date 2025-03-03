@@ -25,7 +25,7 @@ export default function MessagePreview({ messageId, setDummy }) {
         fetch_data();
         update_status();
 
-    }, [])
+    }, [messageId])
 
     return (
         <div className="flex flex-col">

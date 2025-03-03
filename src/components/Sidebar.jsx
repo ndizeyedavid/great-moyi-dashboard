@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import IsLoggedIn from "../utils/session";
-import { ChartArea, Image, MessagesSquareIcon, TableCellsMerge, Users2 } from "lucide-react";
+import { ChartArea, Image, LayoutDashboard, MessagesSquareIcon, TableCellsMerge, Users2 } from "lucide-react";
 
 export default function Sidebar() {
 
@@ -23,6 +23,11 @@ export default function Sidebar() {
             icon: <MessagesSquareIcon size={17} />
         },
         {
+            path: "/site",
+            text: "Site Settings",
+            icon: <LayoutDashboard size={17} />
+        },
+        {
             path: "/ads",
             text: "Advertisment",
             icon: <Image size={17} />
@@ -31,11 +36,11 @@ export default function Sidebar() {
             path: "/analytics",
             text: "Analytics",
             icon: <ChartArea size={17} />
-        }
+        },
     ]
 
     return (
-        <nav className="w-64 bg-black border-r border-red-900  no-print" data-oid="26enmmx">
+        <nav className="w-64 bg-black border-r border-red-900 no-print" data-oid="26enmmx">
             <div className="p-6" data-oid="hf4yw4u">
                 <div className="flex items-center mb-8 space-x-3" data-oid="pxj.hk1">
                     <div

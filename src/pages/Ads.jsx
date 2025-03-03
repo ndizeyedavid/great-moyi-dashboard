@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import Stats from "../components/Stats";
+import { PenBoxIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function Ads() {
     const [ads, setAds] = useState([
@@ -10,20 +11,6 @@ function Ads() {
     ]);
 
     const [newAd, setNewAd] = useState({ title: "", image: "" });
-
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setNewAd({ ...newAd, image: URL.createObjectURL(file) });
-        }
-    };
-
-    const handleAddAd = () => {
-        if (newAd.title && newAd.image) {
-            setAds([...ads, { id: ads.length + 1, ...newAd, status: "Active" }]);
-            setNewAd({ title: "", image: "" });
-        }
-    };
 
     return (
         <div className="flex min-h-screen text-white bg-gradient-to-br from-gray-900 to-black">
@@ -40,17 +27,26 @@ function Ads() {
 
                     {/* Advertisement List */}
                     <section className="mt-8">
-                        <h2 className="text-xl font-semibold">Manage Advertisements</h2>
-                        <div className="grid gap-4 mt-4 sm:grid-cols-2 md:grid-cols-3">
-                            {ads.map((ad) => (
-                                <div key={ad.id} className="p-4 bg-gray-800 rounded-lg shadow">
-                                    <img src={ad.image} alt={ad.title} className="object-cover w-full h-32 rounded-md" />
-                                    <h3 className="mt-2 text-lg font-medium">{ad.title}</h3>
-                                    <p className={`mt-1 text-sm ${ad.status === "Active" ? "text-green-400" : "text-red-400"}`}>
-                                        {ad.status}
-                                    </p>
-                                </div>
-                            ))}
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">Manage Advertisements</h2>
+
+                            <div className="flex space-x-4 no-print">
+                                <Link to="/ads/edit" className="p-2 text-white bg-red-600 rounded-lg aspect-square hover:bg-red-700"> <PenBoxIcon /></Link>
+                                {/* <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"> Export Report </button> */}
+                            </div>
+                        </div>
+
+                        <div className="flex w-full gap-4 mt-5">
+                            <div className="p-2 bg-yellow-400 w-[200px] rounded-md"></div>
+
+
+                            <div className="flex flex-col w-full gap-10 ">
+                                <div className="h-[150px] p-2 bg-yellow-400 rounded-md"></div>
+                                <div className="h-[150px] p-2 bg-yellow-400 rounded-md"></div>
+                                <div className="h-[150px] p-2 bg-yellow-400 rounded-md"></div>
+                            </div>
+
+                            <div className="p-2 bg-yellow-400 w-[200px] rounded-md"></div>
                         </div>
                     </section>
 

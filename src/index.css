@@ -50,3 +50,7 @@
     rotate: 360deg;
   }
 }
+
+.site-config label {
+  @apply mb-2 text-white;
+}

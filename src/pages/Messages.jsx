@@ -17,7 +17,7 @@ export default function Messages() {
     useEffect(() => {
         async function fetch_data() {
             setLoading(true);
-            const results = await pb.collection("messages").getFullList();
+            const results = await pb.collection("messages").getFullList({ sort: 'status' });
 
             setMessages(results);
             setLoading(false);
