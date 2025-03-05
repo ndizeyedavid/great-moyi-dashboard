@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import Ads from "./pages/Ads";
 import SiteConfiguration from "./pages/SiteConfiguration";
 import EditAds from "./pages/EditAds";
+import Test from "./pages/Test";
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/ads/edit" element={<EditAds />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/site" element={<SiteConfiguration />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
     </Router>
   )

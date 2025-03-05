@@ -1,35 +1,29 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import { Check, X, Upload } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import pb from "../utils/pocketbase";
 
 function EditAds() {
+    const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
-    const [preview, setPreview] = useState({
-        vertical1: null,
-        vertical2: null,
-        horizontal1: null,
-        horizontal2: null,
-        horizontal3: null
-    });
-    const [uploads, setUpload] = useState({
-        vertical1: null,
-        vertical2: null,
-        horizontal1: null,
-        horizontal2: null,
-        horizontal3: null
-    })
+    const [preview, setPreview] = useState({});
+    const [uploads, setUploads] = useState({});
 
-    const onSubmit = async (data) => {
+    const onSubmit = async () => {
+        if (Object.keys(uploads).length === 0) {
+            toast.error("No images selected for update", { id: "ads" });
+            return;
+        }
 
         toast.loading("Updating ads", { id: "ads" });
         try {
             await pb.collection("ads").update(import.meta.env.VITE_ADS_UPDATE_ID, uploads);
             toast.success("Ads updated successfully", { id: "ads" });
+            navigate("/ads");
         } catch (err) {
             toast.error("Failed to update ads", { id: "ads" });
         }
@@ -37,50 +31,36 @@ function EditAds() {
 
     const handleImageChange = (e, position) => {
         const file = e.target.files[0];
-        setUpload(prev => ({
-            ...prev,
-            [position]: file
-        }));
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(prev => ({
-                    ...prev,
-                    [position]: reader.result
-                }));
-            };
-            reader.readAsDataURL(file);
-        }
+        if (!file) return;
+
+        setUploads(prev => ({ ...prev, [position]: file }));
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreview(prev => ({ ...prev, [position]: reader.result }));
+        };
+        reader.readAsDataURL(file);
     };
 
     useEffect(() => {
-        async function fetch_ads() {
-            const results = await pb.collection("ads").getOne(import.meta.env.VITE_ADS_UPDATE_ID);
-            // console.log(JSON.stringify(results));
+        async function fetchAds() {
+            try {
+                const results = await pb.collection("ads").getOne(import.meta.env.VITE_ADS_UPDATE_ID);
+                const imageKeys = ["horizontal1", "horizontal2", "horizontal3", "vertical1", "vertical2"];
 
-
-            const imageKeys = ["horizontal1", "horizontal2", "horizontal3", "horizontal4", "vertical1", "vertical2"];
-            const images = imageKeys
-                .filter(key => results[key])
-                .map(key => results[key]);
-
-            for (let i = 0; i < imageKeys.length; i++) {
-                setPreview(prev => ({
-                    ...prev,
-                    [imageKeys[i]]: pb.files.getURL(results, images[i])
-                }));
-
-                // setUpload(prev => ({
-                //     ...prev,
-                //     [imageKeys[i]]: images[i]
-                // }));
-
+                const newPreview = {};
+                imageKeys.forEach(key => {
+                    if (results[key]) {
+                        newPreview[key] = pb.files.getURL(results, results[key]);
+                    }
+                });
+                setPreview(newPreview);
+            } catch (error) {
+                toast.error("Failed to fetch ad images");
             }
         }
-
-        fetch_ads();
+        fetchAds();
     }, []);
-
 
     const ImageUploadBox = ({ position, defaultImage, className }) => (
         <div className={`relative group ${className}`}>
@@ -122,35 +102,13 @@ function EditAds() {
                         </div>
 
                         <div className="flex w-full gap-4 mt-5">
-                            <ImageUploadBox
-                                position="vertical1"
-                                defaultImage="/sample-vertical.jpg"
-                                className="w-[200px]"
-                            />
-
+                            <ImageUploadBox position="vertical1" defaultImage="/sample-vertical.jpg" className="w-[200px]" />
                             <div className="flex flex-col w-full gap-10">
-                                <ImageUploadBox
-                                    position="horizontal1"
-                                    defaultImage="/sample-horizontal.jpg"
-                                    className="h-[150px]"
-                                />
-                                <ImageUploadBox
-                                    position="horizontal2"
-                                    defaultImage="/sample-horizontal.jpg"
-                                    className="h-[260px]"
-                                />
-                                <ImageUploadBox
-                                    position="horizontal3"
-                                    defaultImage="/sample-horizontal.jpg"
-                                    className="h-[150px]"
-                                />
+                                <ImageUploadBox position="horizontal1" defaultImage="/sample-horizontal.jpg" className="h-[150px]" />
+                                <ImageUploadBox position="horizontal2" defaultImage="/sample-horizontal.jpg" className="h-[260px]" />
+                                <ImageUploadBox position="horizontal3" defaultImage="/sample-horizontal.jpg" className="h-[150px]" />
                             </div>
-
-                            <ImageUploadBox
-                                position="vertical2"
-                                defaultImage="/sample-vertical.jpg"
-                                className="w-[200px]"
-                            />
+                            <ImageUploadBox position="vertical2" defaultImage="/sample-vertical.jpg" className="w-[200px]" />
                         </div>
                     </form>
                 </main>

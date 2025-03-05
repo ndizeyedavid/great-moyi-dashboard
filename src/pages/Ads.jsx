@@ -1,16 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { PenBoxIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import pb from "../utils/pocketbase";
 
 function Ads() {
-    const [ads, setAds] = useState([
-        { id: 1, title: "Summer Sale", image: "/ads/summer-sale.jpg", status: "Active" },
-        { id: 2, title: "Black Friday Deal", image: "/ads/black-friday.jpg", status: "Inactive" },
-    ]);
+    const [preview, setPreview] = useState({
+        vertical1: null,
+        vertical2: null,
+        horizontal1: null,
+        horizontal2: null,
+        horizontal3: null
+    });
 
-    const [newAd, setNewAd] = useState({ title: "", image: "" });
+    useEffect(() => {
+        async function fetch_ads() {
+            const results = await pb.collection("ads").getOne(import.meta.env.VITE_ADS_UPDATE_ID);
+
+            const imageKeys = ["horizontal1", "horizontal2", "horizontal3", "horizontal4", "vertical1", "vertical2"];
+            const images = imageKeys
+                .filter(key => results[key])
+                .map(key => results[key]);
+
+            for (let i = 0; i < imageKeys.length; i++) {
+                setPreview(prev => ({
+                    ...prev,
+                    [imageKeys[i]]: pb.files.getURL(results, images[i])
+                }));
+            }
+        }
+
+        fetch_ads();
+    }, []);
+
+    const ImageUploadBox = ({ position, defaultImage, className }) => (
+        <div className={`relative group ${className}`}>
+            <div className="h-full overflow-hidden rounded-md">
+                <img
+                    src={preview[position] || defaultImage}
+                    className="object-cover w-full h-full transition-all group-hover:scale-105"
+                    alt={`${position} Banner`}
+                />
+            </div>
+        </div>
+    );
 
     return (
         <div className="flex min-h-screen text-white bg-gradient-to-br from-gray-900 to-black">
@@ -37,16 +71,35 @@ function Ads() {
                         </div>
 
                         <div className="flex w-full gap-4 mt-5">
-                            <div className="p-2 bg-yellow-400 w-[200px] rounded-md"></div>
+                            <ImageUploadBox
+                                position="vertical1"
+                                defaultImage="/sample-vertical.jpg"
+                                className="w-[200px]"
+                            />
 
-
-                            <div className="flex flex-col w-full gap-10 ">
-                                <div className="h-[150px] p-2 bg-yellow-400 rounded-md"></div>
-                                <div className="h-[150px] p-2 bg-yellow-400 rounded-md"></div>
-                                <div className="h-[150px] p-2 bg-yellow-400 rounded-md"></div>
+                            <div className="flex flex-col w-full gap-10">
+                                <ImageUploadBox
+                                    position="horizontal1"
+                                    defaultImage="/sample-horizontal.jpg"
+                                    className="h-[150px]"
+                                />
+                                <ImageUploadBox
+                                    position="horizontal2"
+                                    defaultImage="/sample-horizontal.jpg"
+                                    className="h-[260px]"
+                                />
+                                <ImageUploadBox
+                                    position="horizontal3"
+                                    defaultImage="/sample-horizontal.jpg"
+                                    className="h-[150px]"
+                                />
                             </div>
 
-                            <div className="p-2 bg-yellow-400 w-[200px] rounded-md"></div>
+                            <ImageUploadBox
+                                position="vertical2"
+                                defaultImage="/sample-vertical.jpg"
+                                className="w-[200px]"
+                            />
                         </div>
                     </section>
 
