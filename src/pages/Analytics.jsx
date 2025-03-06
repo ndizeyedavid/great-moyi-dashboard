@@ -46,7 +46,7 @@ function Analytics() {
             }));
 
             tableAdded.forEach((table) => {
-                const date = new Date(table.created);
+                const date = new Date(table?.$createdAt);
                 const monthIndex = date.getMonth();
                 months[monthIndex].count += 1;
             });
@@ -59,7 +59,7 @@ function Analytics() {
 
             // Sum up views for each month
             tableAdded.forEach((table) => {
-                const date = new Date(table.created);
+                const date = new Date(table?.$createdAt);
                 const monthIndex = date.getMonth();
                 webViews[monthIndex].views += table.views || 0; // Default views to 0 if missing
             });

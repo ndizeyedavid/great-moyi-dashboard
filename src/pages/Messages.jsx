@@ -54,7 +54,7 @@ export default function Messages() {
                         <div className="flex gap-4" data-oid="kbktono">
                             <div className="w-1/3 p-4 bg-gray-900 border rounded-lg border-red-900/20">
                                 <div className="mb-4" data-oid="d_s6wuc">
-                                    <input type="text" placeholder="Search messages..." className="w-full px-4 py-2 text-white placeholder-gray-500 bg-gray-800 border rounded-lg outline-none border-red-900/20" />
+                                    <input type="text" placeholder="Search messages...." className="w-full px-4 py-2 text-white placeholder-gray-500 bg-gray-800 border rounded-lg outline-none border-red-900/20" />
                                 </div>
                                 {loading ?
                                     <SimpleLoading />
@@ -63,7 +63,8 @@ export default function Messages() {
                                         {messages.length === 0 && <Empty title="No messages sent at this moment" text="Wait for your customers to start sending sweet messages" />}
                                         <div className="space-y-2" data-oid="n7lip30">
                                             {messages.map((message, index) => (
-                                                <SingleMessage key={index} id={message.id} status={message.status} from={message.names} time={new Date(message.created).toLocaleString()} subject={message.email} setMessageId={setMessageId} />
+                                                // console.log(message)
+                                                <SingleMessage key={index} id={message?.$id} status={message.status} from={message.names} time={new Date(message?.$createdAt).toLocaleString()} subject={message.email} setMessageId={setMessageId} />
                                             ))}
                                         </div>
                                     </>

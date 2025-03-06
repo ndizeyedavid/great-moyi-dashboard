@@ -19,11 +19,12 @@ function Login() {
         if (login) {
             toast.success("Authenticated " + data.email, { id: "login" });
             navigate("/tables");
+            setLoading(false);
         } else {
             toast.error("Access Denied. Check your credentials", { id: "login" })
+            setLoading(false);
         }
 
-        setLoading(false);
     }
 
     return (

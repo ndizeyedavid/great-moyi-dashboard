@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import pb from "../utils/pocketbase";
+import DatabaseService from "../services/databaseServices";
+import FileService from "../services/fileService";
 
 function EditAds() {
     const navigate = useNavigate();
@@ -20,20 +22,27 @@ function EditAds() {
         }
 
         toast.loading("Updating ads", { id: "ads" });
-        try {
-            await pb.collection("ads").update(import.meta.env.VITE_ADS_UPDATE_ID, uploads);
+
+
+        const updateAds = await DatabaseService.updateDocument(import.meta.env.VITE_ADS_COLLECTION, import.meta.env.VITE_AD_DOCUMENT, uploads)
+
+        if (updateAds) {
             toast.success("Ads updated successfully", { id: "ads" });
             navigate("/ads");
-        } catch (err) {
+        } else {
             toast.error("Failed to update ads", { id: "ads" });
         }
     };
 
-    const handleImageChange = (e, position) => {
+    const handleImageChange = async (e, position) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        setUploads(prev => ({ ...prev, [position]: file }));
+        const uploadSingle = await FileService.uploadFile(import.meta.env.VITE_IMAGES_BUCKET, file);
+
+        // return console.log(uploadSingle)
+
+        setUploads(prev => ({ ...prev, [position]: uploadSingle?.$id }));
 
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -45,13 +54,16 @@ function EditAds() {
     useEffect(() => {
         async function fetchAds() {
             try {
-                const results = await pb.collection("ads").getOne(import.meta.env.VITE_ADS_UPDATE_ID);
+                const results = await DatabaseService.getDocument(import.meta.env.VITE_ADS_COLLECTION, import.meta.env.VITE_AD_DOCUMENT);
+
+                // console.log(results)
+
                 const imageKeys = ["horizontal1", "horizontal2", "horizontal3", "vertical1", "vertical2"];
 
                 const newPreview = {};
                 imageKeys.forEach(key => {
                     if (results[key]) {
-                        newPreview[key] = pb.files.getURL(results, results[key]);
+                        newPreview[key] = FileService.getFilePreview(import.meta.env.VITE_IMAGES_BUCKET, results[key]);
                     }
                 });
                 setPreview(newPreview);

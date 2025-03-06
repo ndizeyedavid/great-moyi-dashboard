@@ -3,7 +3,9 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { PenBoxIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import pb from "../utils/pocketbase";
+import DatabaseService from "../services/databaseServices";
+import FileService from "../services/fileService";
+import { storage } from "../utils/appwrite";
 
 function Ads() {
     const [preview, setPreview] = useState({
@@ -16,23 +18,48 @@ function Ads() {
 
     useEffect(() => {
         async function fetch_ads() {
-            const results = await pb.collection("ads").getOne(import.meta.env.VITE_ADS_UPDATE_ID);
+            try {
+                const results = await DatabaseService.getDocument(
+                    import.meta.env.VITE_ADS_COLLECTION,
+                    import.meta.env.VITE_AD_DOCUMENT
+                );
 
-            const imageKeys = ["horizontal1", "horizontal2", "horizontal3", "horizontal4", "vertical1", "vertical2"];
-            const images = imageKeys
-                .filter(key => results[key])
-                .map(key => results[key]);
+                if (!results) {
+                    console.error("Error: No data returned from DatabaseService.getDocument.");
+                    return;
+                }
 
-            for (let i = 0; i < imageKeys.length; i++) {
-                setPreview(prev => ({
-                    ...prev,
-                    [imageKeys[i]]: pb.files.getURL(results, images[i])
-                }));
+                const imageKeys = ["horizontal1", "horizontal2", "horizontal3", "horizontal4", "vertical1", "vertical2"];
+
+                // Ensure images exist in the results object
+                const images = imageKeys
+                    .map(key => results[key]) // Extract values
+                    .filter(fileId => fileId); // Remove falsy values (undefined, null, "")
+
+                if (images.length === 0) {
+                    console.warn("Warning: No valid images found in the document.");
+                    return;
+                }
+
+                // Update state only if valid fileIds exist
+                for (let i = 0; i < images.length; i++) {
+                    if (images[i]) {
+                        setPreview(prev => ({
+                            ...prev,
+                            [imageKeys[i]]: storage.getFilePreview(import.meta.env.VITE_IMAGES_BUCKET, images[i])
+                        }));
+                    } else {
+                        console.warn(`Warning: Missing fileId for ${imageKeys[i]}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Fetch Ads Error:", error);
             }
         }
 
         fetch_ads();
     }, []);
+
 
     const ImageUploadBox = ({ position, defaultImage, className }) => (
         <div className={`relative group ${className}`}>

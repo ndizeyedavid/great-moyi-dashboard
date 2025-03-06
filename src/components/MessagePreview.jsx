@@ -2,21 +2,23 @@ import { PhoneCall } from "lucide-react";
 import { useEffect, useState } from "react";
 import pb from "../utils/pocketbase";
 import SimpleLoading from "./SimpleLoading";
+import DatabaseService from "../services/databaseServices";
 
 export default function MessagePreview({ messageId, setDummy }) {
+
 
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
     useEffect(() => {
         async function update_status() {
-            await pb.collection("messages").update(messageId, { status: "read", requestKey: null });
+            await DatabaseService.updateDocument(import.meta.env.VITE_MESSAGES_COLLECTION, messageId, { status: "read" });
             setDummy(Math.random())
         }
 
         async function fetch_data() {
             setLoading(true);
-            const results = await pb.collection("messages").getOne(messageId, { requestKey: null });
+            const results = await DatabaseService.getDocument(import.meta.env.VITE_MESSAGES_COLLECTION, messageId);
 
             setData(results)
             setLoading(false);
