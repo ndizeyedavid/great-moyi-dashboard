@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import pb from "../utils/pocketbase"
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -9,6 +9,13 @@ function Login() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const { register, handleSubmit, reset } = useForm();
+
+    useEffect(() => {
+        const loggedIn = AuthService.getAdmin();
+        if (loggedIn) {
+            navigate("/tables")
+        }
+    }, [])
 
     async function loginAdmin(data) {
         setLoading(true)
