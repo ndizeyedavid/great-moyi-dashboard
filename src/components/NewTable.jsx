@@ -7,8 +7,10 @@ import ImageUploader from './ImageUploader';
 import ThumbnailUploader from './ThumbnailUploader';
 
 import { useForm } from 'react-hook-form';
-import pb from '../utils/pocketbase';
+// import pb from '../utils/pocketbase';
 import toast from 'react-hot-toast';
+import FileService from '../services/fileService';
+import DatabaseService from '../services/databaseServices';
 
 export default function NewTable({ setModalOpen, setDummy }) {
 
@@ -27,32 +29,46 @@ export default function NewTable({ setModalOpen, setDummy }) {
     }
 
     async function addTable(data) {
-        toast.loading("Adding new table", { id: "add" })
+        toast.loading("Adding new table...", { id: "add" });
 
         try {
+            // Upload thumbnail first
+            let thumbnailId = "";
+            if (thumbnail) {
+                const uploadedThumbnail = await FileService.uploadFile(import.meta.env.VITE_IMAGES_BUCKET, thumbnail);
+                thumbnailId = uploadedThumbnail?.$id || "";
+            }
+
+            // Upload preview images
+            const imageIds = [];
+            for (const image of images) {
+                const uploadedImage = await FileService.uploadFile(import.meta.env.VITE_IMAGES_BUCKET, image);
+                if (uploadedImage?.$id) imageIds.push(uploadedImage.$id);
+            }
+
+
+            // Create document in Appwrite
             const formObject = {
                 name: data.title,
-                price: data.price,
-                status: "Available",
-                thumbnail: thumbnail,
+                price: Number(data.price),
+                thumbnail: thumbnailId,
                 features: JSON.stringify(tags),
                 specs: JSON.stringify(specs),
-                preview_images: images,
-                description: data.description
-            }
-            console.log(formObject)
+                preview_images: imageIds,
+                description: data.description,
+            };
 
-            await pb.collection("tables").create(formObject)
+            await DatabaseService.createDocument(import.meta.env.VITE_TABLES_COLLECTION, formObject);
 
-            toast.success("New table added successfully", { id: "add" })
-            reset();
-            setModalOpen(false);
+            toast.success("New table added successfully", { id: "add" });
             setDummy(Math.random());
+            setModalOpen(false);
         } catch (err) {
+            console.error("Error creating table:", err);
             toast.error("Unable to create new Table, try again", { id: "add" });
         }
-
     }
+
 
     return (
         <div id='modal' onClick={(e) => closeModal(e)} className='absolute top-0 flex items-center justify-center w-full h-full bg-black/70'>

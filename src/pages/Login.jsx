@@ -3,6 +3,7 @@ import pb from "../utils/pocketbase"
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import AuthService from '../services/authService';
 
 function Login() {
     const navigate = useNavigate();
@@ -12,17 +13,17 @@ function Login() {
     async function loginAdmin(data) {
         setLoading(true)
         toast.loading("Signing in...", { id: "login" });
-        try {
-            await pb.collection("_superusers").authWithPassword(data.email, data.password);
 
+        const login = await AuthService.login(data.email, data.password);
+
+        if (login) {
             toast.success("Authenticated " + data.email, { id: "login" });
             navigate("/tables");
-        } catch (err) {
-            toast.error("Access Denied", { id: "login" })
-        } finally {
-            setLoading(false);
-            reset();
+        } else {
+            toast.error("Access Denied. Check your credentials", { id: "login" })
         }
+
+        setLoading(false);
     }
 
     return (

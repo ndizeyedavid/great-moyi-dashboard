@@ -3,6 +3,8 @@ import { motion } from "framer-motion"
 import { X } from 'lucide-react'
 import pb from '../utils/pocketbase';
 import SimpleLoading from './SimpleLoading';
+import DatabaseService from '../services/databaseServices';
+import { storage } from '../utils/appwrite';
 
 export default function TableDetails({ setShowDetailsModal, tableId }) {
 
@@ -21,10 +23,11 @@ export default function TableDetails({ setShowDetailsModal, tableId }) {
 
     useEffect(() => {
         async function fetch_data() {
-            const result = await pb.collection("tables").getOne(tableId);
+            setLoading(true);
+            const result = await DatabaseService.getDocument(import.meta.env.VITE_TABLES_COLLECTION, tableId);
             setData(result);
             setPreviewImages(result.preview_images)
-            setFeatures(result.features);
+            setFeatures(JSON.parse(result.features));
             setLoading(false);
         }
         fetch_data();
@@ -61,7 +64,7 @@ export default function TableDetails({ setShowDetailsModal, tableId }) {
                                 <div className="space-y-4">
                                     <div className="overflow-hidden rounded-lg bg-gray-800/50 aspect-[4/3]">
                                         <img
-                                            src={pb.files.getURL(data, data.thumbnail)}
+                                            src={storage.getFilePreview(import.meta.env.VITE_IMAGES_BUCKET, data.thumbnail)}
                                             alt="Pool Table"
                                             className="object-cover w-full h-full transition-transform duration-500 hover:scale-110"
                                         />
@@ -71,7 +74,7 @@ export default function TableDetails({ setShowDetailsModal, tableId }) {
                                         {/* {console.log(data.preview_images)} */}
                                         {previewImages.map((image, index) => (
                                             <div key={index} className={`overflow-hidden rounded-lg bg-gray-800/50 aspect-square`} >
-                                                <img src={pb.files.getURL(data, image)} alt={`View`} className="object-cover w-full h-full transition-all duration-300 hover:scale-110" />
+                                                <img src={storage.getFilePreview(import.meta.env.VITE_IMAGES_BUCKET, image)} alt={`View`} className="object-cover w-full h-full transition-all duration-300 hover:scale-110" />
                                             </div>
                                         ))}
                                     </div>
@@ -86,7 +89,7 @@ export default function TableDetails({ setShowDetailsModal, tableId }) {
                                     </div>
 
                                     <div className="space-y-4 text-gray-800">
-                                        <p className="leading-relaxed">{data.description}</p>
+                                        <p className="leading-relaxed capitalize">{data.description}</p>
 
                                         <div className="space-y-2">
                                             {features.map((value, index) => (
@@ -94,7 +97,7 @@ export default function TableDetails({ setShowDetailsModal, tableId }) {
                                                     <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                                     </svg>
-                                                    <span className='text-black'>{value}</span>
+                                                    <span className='text-black capitalize'>{value}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -112,10 +115,10 @@ export default function TableDetails({ setShowDetailsModal, tableId }) {
                                     {/* Specifications Dropdown */}
                                     <div className={`transition-all duration-500 overflow-hidden ${showSpec ? 'max-h-[500px]' : 'max-h-0'}`}>
                                         <div className="p-4 mt-4 space-y-3 border border-gray-700 rounded-lg bg-black/20">
-                                            {data.specs.map((spec, index) => (
+                                            {JSON.parse(data.specs).map((spec, index) => (
                                                 <div key={index} className="flex justify-between text-sm">
-                                                    <span className="text-black">{spec.label}</span>
-                                                    <span className="text-red-600">{spec.value}</span>
+                                                    <span className="text-black capitalize">{spec.label}</span>
+                                                    <span className="text-red-600 capitalize">{spec.value}</span>
                                                 </div>
                                             ))}
                                         </div>

@@ -9,6 +9,8 @@ import SimpleLoading from "../components/SimpleLoading";
 import pb from "../utils/pocketbase";
 import toast from "react-hot-toast";
 import Empty from "../components/Empty";
+import DatabaseService from "../services/databaseServices";
+import { storage } from "../utils/appwrite";
 
 function Team() {
     const [modalOpen, setModalOpen] = useState(false);
@@ -22,7 +24,7 @@ function Team() {
     useEffect(() => {
         async function fetch_data() {
             setLoading(true);
-            const results = await pb.collection("team").getFullList();
+            const results = await DatabaseService.listDocuments(import.meta.env.VITE_TEAM_COLLECTION);
             setTeam(results);
             setLoading(false);
         }
@@ -34,14 +36,15 @@ function Team() {
     async function handleDelete(id) {
         if (confirm("Are you sure you want to delete this member?")) {
             toast.loading("Deleting user", { id: "delete" })
-            try {
-                await pb.collection("team").delete(id);
+
+            const deleteMember = await DatabaseService.deleteDocument(import.meta.env.VITE_TEAM_COLLECTION, id);
+
+            if (deleteMember) {
                 toast.success("User deleted", { id: "delete" });
-            } catch (err) {
+            } else {
                 toast.error("Failed to delete member", { id: "delete" });
-            } finally {
-                setDummy(Math.random())
             }
+            setDummy(Math.random())
         }
     }
 
@@ -81,8 +84,8 @@ function Team() {
                                     {team.map((member, index) => (
                                         <TeamCard
                                             key={index}
-                                            id={member.id}
-                                            avatar={pb.files.getURL(member, member.avatar)}
+                                            id={member.$id}
+                                            avatar={storage.getFilePreview(import.meta.env.VITE_IMAGES_BUCKET, member.avatar)}
                                             name={member.name}
                                             role={member.role}
                                             setMemberId={setMemberId}

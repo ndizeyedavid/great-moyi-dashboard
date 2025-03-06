@@ -8,6 +8,8 @@ import TableDetails from "../components/TableDetails";
 import SimpleLoading from "../components/SimpleLoading";
 import pb from "../utils/pocketbase";
 import Empty from "../components/Empty";
+import DatabaseService from "../services/databaseServices";
+import { storage } from "../utils/appwrite";
 
 function Dashboard() {
 
@@ -23,7 +25,7 @@ function Dashboard() {
     useEffect(() => {
         async function fetch_tables() {
             setLoading(true);
-            const results = await pb.collection("tables").getFullList();
+            const results = await DatabaseService.listDocuments(import.meta.env.VITE_TABLES_COLLECTION)
             setTables(results);
             setLoading(false);
         }
@@ -69,8 +71,8 @@ function Dashboard() {
                                                 {tables.map((table) => (
                                                     <TableCard
                                                         key={table.id}
-                                                        id={table.id}
-                                                        thumbnail={pb.files.getURL(table, table.thumbnail)}
+                                                        id={table.$id}
+                                                        thumbnail={storage.getFilePreview(import.meta.env.VITE_IMAGES_BUCKET, table.thumbnail)}
                                                         name={table.name}
                                                         status={table.status}
                                                         price={table.price}

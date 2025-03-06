@@ -8,6 +8,7 @@ import pb from "../utils/pocketbase";
 import { RotateCw } from "lucide-react";
 
 import "../styles/print.css"
+import DatabaseService from "../services/databaseServices";
 // Sample data
 
 const maintenanceData = [
@@ -35,7 +36,7 @@ function Analytics() {
     useEffect(() => {
         async function fetch_tables_data() {
             setLoading(true);
-            const tableAdded = await pb.collection("tables").getFullList();
+            const tableAdded = await DatabaseService.listDocuments(import.meta.env.VITE_TABLES_COLLECTION);
 
 
             // Count tables added per month
@@ -79,7 +80,7 @@ function Analytics() {
 
             // chart 1
             setTables(months);
-            console.log(months);
+            // console.log(months);
 
 
             setLoading(false)

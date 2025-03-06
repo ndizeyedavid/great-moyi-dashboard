@@ -5,6 +5,8 @@ import ProfileUpload from './ProfileUpload'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import pb from '../utils/pocketbase'
+import DatabaseService from '../services/databaseServices'
+import FileService from '../services/fileService'
 
 export default function NewTeamMember({ setModalOpen, setDummy }) {
 
@@ -21,19 +23,26 @@ export default function NewTeamMember({ setModalOpen, setDummy }) {
 
     async function addMember(data) {
         toast.loading("Adding new team member", { id: "add" });
-        try {
-            const formData = {
-                name: data.name,
-                role: data.role,
-                description: data.description,
-                avatar: profilePic,
-            }
 
-            await pb.collection("team").create(formData)
+        let profileId = "";
+        if (profilePic) {
+            const uploadProfile = await FileService.uploadFile(import.meta.env.VITE_IMAGES_BUCKET, profilePic);
+            profileId = uploadProfile?.$id || "";
+        }
+
+        const formData = {
+            name: data.name,
+            role: data.role,
+            description: data.description,
+            avatar: profileId,
+        }
+
+        const add = await DatabaseService.createDocument(import.meta.env.VITE_TEAM_COLLECTION, formData);
+        if (add) {
             toast.success("New team member is added", { id: "add" });
             setDummy(Math.random())
             setModalOpen(false);
-        } catch (err) {
+        } else {
             toast.error("Failed to add new member", { id: "add" });
         }
 

@@ -6,6 +6,7 @@ import pb from "../utils/pocketbase";
 import SimpleLoading from "../components/SimpleLoading";
 import Empty from "../components/Empty";
 import MessagePreview from "../components/MessagePreview";
+import DatabaseService from "../services/databaseServices";
 
 export default function Messages() {
 
@@ -17,7 +18,7 @@ export default function Messages() {
     useEffect(() => {
         async function fetch_data() {
             setLoading(true);
-            const results = await pb.collection("messages").getFullList({ sort: 'status' });
+            const results = await DatabaseService.listDocuments(import.meta.env.VITE_MESSAGES_COLLECTION);
 
             setMessages(results);
             setLoading(false);

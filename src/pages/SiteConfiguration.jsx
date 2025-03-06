@@ -5,6 +5,7 @@ import SimpleLoading from "../components/SimpleLoading";
 import pb from "../utils/pocketbase";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
+import DatabaseService from "../services/databaseServices";
 
 function SiteConfiguration() {
     const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ function SiteConfiguration() {
     useEffect(() => {
         async function fetch_data() {
             setFetching(true);
-            const results = await pb.collection("site").getOne(import.meta.env.VITE_SITE_UPDATE_ID, { requestKey: null });
+            const results = await DatabaseService.getDocument(import.meta.env.VITE_SITE_COLLECTION, import.meta.env.VITE_SITE_DOCUMENT);
 
             setData(results);
 
@@ -76,14 +77,16 @@ function SiteConfiguration() {
             experience: experience
         }
         // return console.log(toInsert);
-        try {
-            await pb.collection('site').update(import.meta.env.VITE_SITE_UPDATE_ID, toInsert)
+
+        const update = await DatabaseService.updateDocument(import.meta.env.VITE_SITE_COLLECTION, import.meta.env.VITE_SITE_DOCUMENT, toInsert)
+
+        if (update) {
             toast.success("Site data updated", { id: "update" });
-        } catch (err) {
+        } else {
             toast.error("Unable to update data", { id: "update" });
-        } finally {
-            setLoading(false);
         }
+
+        setLoading(false);
     }
 
     return (

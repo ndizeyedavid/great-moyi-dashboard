@@ -6,6 +6,8 @@ import pb from '../utils/pocketbase'
 import SimpleLoading from './SimpleLoading'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import DatabaseService from '../services/databaseServices'
+import FileService from '../services/fileService'
 export default function TeamEdit({ memberId, setShowEditPanel, setDummy }) {
 
     function closeModal(e) {
@@ -23,7 +25,7 @@ export default function TeamEdit({ memberId, setShowEditPanel, setDummy }) {
     useEffect(() => {
         async function fetch_data() {
             setLoading(true);
-            const results = await pb.collection("team").getOne(memberId);
+            const results = await DatabaseService.getDocument(import.meta.env.VITE_TEAM_COLLECTION, memberId);
 
             setData(results);
             setLoading(false);
@@ -32,24 +34,32 @@ export default function TeamEdit({ memberId, setShowEditPanel, setDummy }) {
         fetch_data();
     }, [])
 
-    async function updateMember(data) {
-        toast.loading(`Updating ${data.name}...`, { id: "update" });
-        try {
+    async function updateMember(theData) {
+        toast.loading(`Updating ${theData.name}...`, { id: "update" });
 
-            const formData = {
-                name: data.name,
-                role: data.role,
-                description: data.description,
-                avatar: profilePic || data.avatar
-            }
+        let profileId = "";
+        if (profilePic) {
+            const uploadProfile = await FileService.uploadFile(import.meta.env.VITE_IMAGES_BUCKET, profilePic);
+            profileId = uploadProfile?.$id || "";
+        }
 
-            await pb.collection("team").update(memberId, formData)
+        const formData = {
+            name: theData.name,
+            role: theData.role,
+            description: theData.description,
+            avatar: profileId || data.avatar
+        }
+
+
+        const updateMember = await DatabaseService.updateDocument(import.meta.env.VITE_TEAM_COLLECTION, memberId, formData);
+        if (updateMember) {
             toast.success("Team member updated", { id: "update" })
             setDummy(Math.random());
             setShowEditPanel(false);
-        } catch (err) {
+        } else {
             toast.error("Failed to update member", { id: "update" });
         }
+
     }
 
     return (

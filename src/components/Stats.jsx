@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import pb from "../utils/pocketbase";
 import GridLoading from "./GridLoading";
+import DatabaseService from "../services/databaseServices";
 
 export default function Stats() {
 
@@ -14,9 +15,9 @@ export default function Stats() {
     useEffect(() => {
         async function fetch_data() {
             setLoading(true)
-            const tb = await pb.collection("tables").getFullList({ requestKey: null });
-            const tm = await pb.collection("team").getFullList({ requestKey: null })
-            const msg = await pb.collection("messages").getFullList({ requestKey: null })
+            const tb = await DatabaseService.listDocuments(import.meta.env.VITE_TABLES_COLLECTION);
+            const tm = await DatabaseService.listDocuments(import.meta.env.VITE_TEAM_COLLECTION);
+            const msg = await DatabaseService.listDocuments(import.meta.env.VITE_MESSAGES_COLLECTION);
             setTables(tb.length);
             setTeam(tm.length)
             setMessages(msg.length);

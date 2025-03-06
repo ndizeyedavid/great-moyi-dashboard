@@ -1,8 +1,8 @@
 import { Eye, Heart } from 'lucide-react'
 import React, { useState } from 'react'
-import TableDetails from './TableDetails';
 
 export default function TableCard({ id, name, thumbnail, status, price, likes, views, setShowDetailsModal, setTableId }) {
+
 
     function handleShowDetails() {
         setShowDetailsModal(true)
