@@ -7,9 +7,6 @@ Wesbite Status: [![Netlify Status](https://api.netlify.com/api/v1/badges/b467a09
 # (stable) Version 2
 
 <br>
-<br>
-<br>
-<br>
 
 # Change Log
 
