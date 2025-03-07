@@ -7,10 +7,14 @@ function IsLoggedIn() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedin = AuthService.getAdmin();
-    if (!loggedin) {
-      navigate("/");
+    async function checkSession() {
+      const loggedin = await AuthService.getAdmin();
+      if (!loggedin) {
+        navigate("/");
+      }
     }
+
+    checkSession();
   }, []);
 
   return null;

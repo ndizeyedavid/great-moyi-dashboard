@@ -59,3 +59,7 @@ Wesbite Status: [![Netlify Status](https://api.netlify.com/api/v1/badges/b467a09
 - Migration from pocketbase to AppWrite
 - Introduced Ads (vertical & horizontal)
 - Improved performance
+
+# V 2.1 (Bug Fix)
+
+- Fixed accessing the dsashboard without loggging in
