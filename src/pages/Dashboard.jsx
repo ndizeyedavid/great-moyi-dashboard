@@ -80,6 +80,7 @@ function Dashboard() {
                                                         views={table.views}
                                                         setTableId={setTableId}
                                                         setShowDetailsModal={setShowDetailsModal}
+                                                        setDummy={setDummy}
                                                     />
                                                 ))}
                                             </div>

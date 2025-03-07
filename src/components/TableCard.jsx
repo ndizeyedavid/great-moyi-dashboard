@@ -1,12 +1,27 @@
 import { Eye, Heart } from 'lucide-react'
 import React, { useState } from 'react'
-
-export default function TableCard({ id, name, thumbnail, status, price, likes, views, setShowDetailsModal, setTableId }) {
+import DatabaseService from "../services/databaseServices"
+import toast from 'react-hot-toast'
+export default function TableCard({ id, name, thumbnail, status, price, likes, views, setShowDetailsModal, setTableId, setDummy }) {
 
 
     function handleShowDetails() {
         setShowDetailsModal(true)
         setTableId(id)
+    }
+
+    async function handleDelete() {
+        if (confirm("Are you sure you want to delete this table?")) {
+            toast.loading("Deleting single table", { id: "delete" })
+
+            const deleteTable = await DatabaseService.deleteDocument(import.meta.env.VITE_TABLES_COLLECTION, id);
+            if (deleteTable) {
+                toast.success("Table deleted successfully", { id: "delete" });
+                setDummy(Math.random())
+            } else {
+                toast.error("Unable to delete table", { id: "delete" });
+            }
+        }
     }
 
     return (
@@ -47,6 +62,9 @@ export default function TableCard({ id, name, thumbnail, status, price, likes, v
             <div className="flex space-x-2">
                 <button onClick={handleShowDetails} className="w-full px-3 py-2 text-sm text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700">
                     Manage
+                </button>
+                <button onClick={handleDelete} className="w-full px-3 py-2 text-sm text-white transition-colors border border-red-600 rounded-lg hover:bg-red-700">
+                    Delete
                 </button>
             </div>
 
